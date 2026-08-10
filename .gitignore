@@ -9,3 +9,5 @@ __pycache__/
 server.log
 pytest_output.txt
 project_report.docx
+.env*
+!.env.example
