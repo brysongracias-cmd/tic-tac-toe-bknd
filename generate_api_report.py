@@ -1,22 +1,22 @@
-# Generate an Excel API test report for the tic-tac-toe backend.
-from dotenv import load_dotenv
-load_dotenv('.env_5aed5591dc897f4e', override=True)
 import openpyxl
-from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
+# (method, endpoint, description, status_code, pass_fail, reason)
 results = [
-    ("GET", "/health", "Health check", 200, "PASS", "Real server boot verified OK on port 46999"),
-    ("GET", "/", "Root status", 200, "PASS", "Route present and import/server checks passed"),
-    ("POST", "/api/v1/auth/register", "Register user", 201, "PASS", "pytest test_register passed"),
-    ("POST", "/api/v1/auth/login", "Login user", 200, "PASS", "pytest test_login passed"),
-    ("GET", "/api/v1/auth/me", "Read current user", 200, "PASS", "pytest test_me passed; invalid token also returned 401"),
-    ("POST", "/api/v1/games/", "Create game", 201, "PASS", "pytest test_create_game passed"),
-    ("GET", "/api/v1/games/", "List games", 200, "PASS", "pytest test_list_games passed"),
-    ("GET", "/api/v1/games/{game_id}", "Get game", 200, "PASS", "pytest test_get_game passed"),
-    ("PATCH", "/api/v1/games/{game_id}", "Update game", 200, "PASS", "pytest test_update_game passed"),
-    ("DELETE", "/api/v1/games/{game_id}", "Delete game", 204, "PASS", "pytest test_delete_game passed"),
-    ("POST", "/api/v1/games/{game_id}/moves", "Make move", 201, "PASS", "pytest test_make_move passed"),
+    ("GET", "/health", "Health check", 200, "PASS", "Real uvicorn boot verified"),
+    ("GET", "/", "Root status", 200, "PASS", "Endpoint available"),
+    ("POST", "/api/v1/auth/register", "Register a player account", 201, "PASS", "pytest tests/test_auth.py::test_register"),
+    ("POST", "/api/v1/auth/login", "Login and receive JWT", 200, "PASS", "pytest tests/test_auth.py::test_login"),
+    ("GET", "/api/v1/auth/me", "Read authenticated user", 200, "PASS", "pytest tests/test_auth.py::test_me"),
+    ("GET", "/api/v1/auth/me", "Reject invalid bearer token", 401, "PASS", "pytest tests/test_auth.py::test_invalid_token"),
+    ("POST", "/api/v1/games/", "Create tic-tac-toe game", 201, "PASS", "pytest tests/test_games.py::test_create_game"),
+    ("GET", "/api/v1/games/", "List authenticated user's games", 200, "PASS", "pytest tests/test_games.py::test_list_games"),
+    ("GET", "/api/v1/games/{game_id}", "Get a game", 200, "PASS", "pytest tests/test_games.py::test_get_game"),
+    ("PATCH", "/api/v1/games/{game_id}", "Update a game", 200, "PASS", "pytest tests/test_games.py::test_update_game"),
+    ("DELETE", "/api/v1/games/{game_id}", "Delete a game", 204, "PASS", "pytest tests/test_games.py::test_delete_game"),
+    ("GET", "/api/v1/games/{game_id}", "Deleted game returns not found", 404, "PASS", "pytest tests/test_games.py::test_delete_game"),
+    ("POST", "/api/v1/games/{game_id}/moves", "Make next tic-tac-toe move", 201, "PASS", "pytest tests/test_games.py::test_make_move"),
 ]
 
 wb = openpyxl.Workbook()
@@ -32,17 +32,12 @@ t = Side(style="thin")
 bdr = Border(left=t, right=t, top=t, bottom=t)
 for c, h in enumerate(["#", "Method", "Endpoint", "Description", "Status Code", "Pass/Fail", "Reason"], 1):
     cell = ws.cell(row=1, column=c, value=h)
-    cell.font = hf
-    cell.fill = hbg
-    cell.alignment = ctr
-    cell.border = bdr
+    cell.font = hf; cell.fill = hbg; cell.alignment = ctr; cell.border = bdr
 for row, (m, ep, desc, code, pf, rsn) in enumerate(results, 2):
     bg = pg if pf == "PASS" else fr
     for c, (v, a) in enumerate(zip([row - 1, m, ep, desc, code, pf, rsn], [ctr, ctr, lft, lft, ctr, ctr, lft]), 1):
         cell = ws.cell(row=row, column=c, value=v)
-        cell.fill = bg
-        cell.alignment = a
-        cell.border = bdr
+        cell.fill = bg; cell.alignment = a; cell.border = bdr
         if c == 6:
             cell.font = Font(bold=True, color="375623" if pf == "PASS" else "9C0006")
 for i, w in enumerate([5, 10, 42, 32, 12, 12, 50], 1):
