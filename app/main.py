@@ -3,25 +3,27 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from dotenv import load_dotenv
-load_dotenv('.env_93882a75-762a-45f3-a2b2-f23fdc62ca0d', override=True)
+load_dotenv('.env_5aed5591dc897f4e', override=True)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database import Base, engine
+from app.database import close_mongo_connection, connect_to_mongo
 from app.routers import auth, games
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    yield
+    await connect_to_mongo()
+    try:
+        yield
+    finally:
+        await close_mongo_connection()
 
 
 app = FastAPI(
     title="tic-tac-toe-bknd",
     version="0.1.0",
-    description="Simple FastAPI backend for a tic-tac-toe game.",
+    description="Simple FastAPI backend for a tic-tac-toe game using MongoDB.",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,

@@ -1,39 +1,32 @@
-# Seed script that creates database tables and sample tic-tac-toe records.
+# Seed script that creates sample tic-tac-toe records in MongoDB.
 import asyncio
 
 from dotenv import load_dotenv
-load_dotenv('.env_93882a75-762a-45f3-a2b2-f23fdc62ca0d', override=True)
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
+load_dotenv('.env_5aed5591dc897f4e', override=True)
 
 from app.core.security import get_password_hash
-from app.database import AsyncSessionLocal, Base, engine
-from app.models import Game, Move, PlayerMark, User
+from app.database import close_mongo_connection, connect_to_mongo, store
+from app.models import PlayerMark
 
 
 async def seed() -> None:
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    async with AsyncSessionLocal() as db:
-        users_result = await db.execute(select(User))
-        if len(users_result.scalars().all()) == 0:
-            users = [
-                User(email="alice@example.com", username="alice", hashed_password=get_password_hash("password123")),
-                User(email="bob@example.com", username="bob", hashed_password=get_password_hash("password123")),
-                User(email="carol@example.com", username="carol", hashed_password=get_password_hash("password123")),
-            ]
-            db.add_all(users)
-            await db.flush()
+    await connect_to_mongo()
+    try:
+        if await store.find_user_by_email_or_username("alice@example.com") is None:
+            users = []
+            for username in ("alice", "bob", "carol"):
+                users.append(await store.create_user(f"{username}@example.com", username, get_password_hash("password123")))
             for user in users:
-                game = Game(owner_id=user.id)
-                db.add(game)
-                await db.flush()
-                db.add(Move(game_id=game.id, player=PlayerMark.X, position=0, move_number=1))
+                game = await store.create_game(user.id)
                 game.board = ["X", "", "", "", "", "", "", "", ""]
                 game.current_player = PlayerMark.O
-            await db.commit()
-        games_result = await db.execute(select(Game).options(selectinload(Game.moves)))
-        print(f"Seed complete: {len((await db.execute(select(User))).scalars().all())} users, {len(games_result.scalars().all())} games")
+                await store.add_move(game.id, PlayerMark.X, 0, 1)
+                await store.update_game(game)
+        users_count = len(store._users) if store.in_memory else await store.db.users.count_documents({})  # type: ignore[union-attr]
+        games_count = len(store._games) if store.in_memory else await store.db.games.count_documents({})  # type: ignore[union-attr]
+        print(f"Seed complete: {users_count} users, {games_count} games")
+    finally:
+        await close_mongo_connection()
 
 
 if __name__ == "__main__":

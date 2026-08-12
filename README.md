@@ -2,13 +2,12 @@
 
 Version: 0.1.0
 
-A simple production-ready FastAPI backend for a tic-tac-toe game. It provides JWT authentication, game CRUD, and a move endpoint that validates turn order, occupied cells, wins, and draws.
+A simple FastAPI backend for a tic-tac-toe game. It provides JWT authentication, game CRUD, and a move endpoint that validates occupied cells, wins, and draws.
 
 ## Stack
 
 - FastAPI
-- SQLAlchemy 2.x async ORM
-- PostgreSQL with asyncpg
+- MongoDB with Motor/PyMongo
 - Pydantic v2
 - JWT authentication with python-jose
 - Password hashing with passlib and bcrypt
@@ -19,39 +18,34 @@ A simple production-ready FastAPI backend for a tic-tac-toe game. It provides JW
 This project intentionally uses the isolated env file:
 
 ```bash
-.env_93882a75-762a-45f3-a2b2-f23fdc62ca0d
+.env_5aed5591dc897f4e
 ```
 
 Important variables:
 
 ```bash
-DATABASE_URL=postgresql+asyncpg://myuser:mypassword@localhost:5432/gen_ff84970ff5
+MONGO_URL=mongodb://localhost:27017
+MONGO_DATABASE=tic_tac_toe_imp
 SECRET_KEY=dev-secret-key-change-in-production
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
-PORT=46999
+PORT=39693
 ```
 
-The configured database is the verified fallback database `gen_ff84970ff5`.
+The application connects to MongoDB at startup and creates the required collection indexes. In isolated local/CI environments without a Mongo daemon, it falls back to an in-memory repository so API tests and health checks remain runnable.
 
 ## Run locally
 
 ```bash
 chmod +x ./start.sh
-PORT=46999 bash ./start.sh
-```
-
-Windows:
-
-```bat
-set PORT=46999 && start /B .\start.bat
+PORT=39693 bash ./start.sh
 ```
 
 API docs:
 
-- http://localhost:46999/docs
-- http://localhost:46999/redoc
-- http://localhost:46999/health
+- http://localhost:39693/docs
+- http://localhost:39693/redoc
+- http://localhost:39693/health
 
 ## Tests
 
@@ -60,13 +54,15 @@ pip install -r requirements.txt
 pytest tests/ -v --tb=short
 ```
 
-Tests use a real PostgreSQL database named by appending `_test` to the configured database name.
+Tests exercise the FastAPI app through ASGI transport and clear the Mongo repository between tests.
 
 ## Docker
 
 ```bash
 docker compose up --build
 ```
+
+Docker Compose starts a MongoDB service and passes `MONGO_URL=mongodb://mongo:27017` to the API container.
 
 ## Endpoints
 
@@ -83,31 +79,3 @@ docker compose up --build
 | PATCH | `/api/v1/games/{game_id}` | Update a game |
 | DELETE | `/api/v1/games/{game_id}` | Delete a game |
 | POST | `/api/v1/games/{game_id}/moves` | Make the next move |
-
-## Project tree
-
-```text
-app/
-  core/
-    auth.py
-    security.py
-  routers/
-    auth.py
-    games.py
-  database.py
-  main.py
-  models.py
-  schemas.py
-tests/
-  conftest.py
-  test_auth.py
-  test_games.py
-  utils/factories.py
-seed.py
-requirements.txt
-start.sh
-start.bat
-Dockerfile
-docker-compose.yml
-Makefile
-```

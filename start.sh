@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-PORT=46999
+PORT=39693
 export PORT
 export PYTHONUNBUFFERED=1
 
@@ -10,4 +10,4 @@ fi
 . .venv/bin/activate
 python -m pip install --upgrade pip -q
 python -m pip install -r requirements.txt -q
-exec uvicorn app.main:app --host 0.0.0.0 --port 46999 --reload
+exec uvicorn app.main:app --host 0.0.0.0 --port 39693

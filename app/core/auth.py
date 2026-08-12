@@ -2,21 +2,20 @@
 import uuid
 
 from dotenv import load_dotenv
-load_dotenv('.env_93882a75-762a-45f3-a2b2-f23fdc62ca0d', override=True)
+load_dotenv('.env_5aed5591dc897f4e', override=True)
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import ALGORITHM, SECRET_KEY
-from app.database import get_db
+from app.database import MongoStore, get_db
 from app.models import User
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)) -> User:
+async def get_current_user(token: str = Depends(oauth2_scheme), db: MongoStore = Depends(get_db)) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -30,7 +29,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
         user_id = uuid.UUID(str(subject))
     except (JWTError, ValueError):
         raise credentials_exception from None
-    user = await db.get(User, user_id)
+    user = await db.get_user(user_id)
     if user is None:
         raise credentials_exception
     return user
