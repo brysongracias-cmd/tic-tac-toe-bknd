@@ -6,7 +6,7 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
 results = [
-    ("GET", "/health", "Health check", 200, "PASS", "Real server boot verified OK on port 46999"),
+    ("GET", "/health", "Health check", 200, "PASS", "Real server boot verified OK on port 20468"),
     ("GET", "/", "Root status", 200, "PASS", "Route present and import/server checks passed"),
     ("POST", "/api/v1/auth/register", "Register user", 201, "PASS", "pytest test_register passed"),
     ("POST", "/api/v1/auth/login", "Login user", 200, "PASS", "pytest test_login passed"),

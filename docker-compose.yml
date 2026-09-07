@@ -21,8 +21,8 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql+asyncpg://myuser:mypassword@db:5432/gen_ff84970ff5
-      PORT: 46999
+      PORT: 20468
     ports:
-      - "46999:46999"
+      - "20468:20468"
 volumes:
   postgres_data:

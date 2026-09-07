@@ -11,6 +11,7 @@ COMMIT_MESSAGE: Add scoreboard creation endpoint
 - app/database.py — loads the job-specific environment file and requires the configured database URL.
 - app/core/security.py — loads the job-specific environment file and requires the configured secret key.
 - app/core/auth.py, app/routers/auth.py, app/routers/games.py, seed.py, tests/, and existing report scripts — standardized dotenv loading to `.env_5aed5591dc897f4e`.
+- Dockerfile, docker-compose.yml, Makefile, README.md, start.sh, and start.bat — aligned local and container startup commands with required port 20468.
 
 ## Files Added
 - app/routers/scoreboards.py — scoreboard creation route.
