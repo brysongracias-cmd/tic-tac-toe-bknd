@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from dotenv import load_dotenv
-load_dotenv('.env_93882a75-762a-45f3-a2b2-f23fdc62ca0d', override=True)
+load_dotenv('.env_5aed5591dc897f4e', override=True)
 from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -52,6 +52,13 @@ class Game(Base):
 
     owner: Mapped[User] = relationship(back_populates="games")
     moves: Mapped[List["Move"]] = relationship(back_populates="game", cascade="all, delete-orphan", order_by="Move.move_number")
+
+
+class Scoreboard(Base):
+    __tablename__ = "scoreboards"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 
 class Move(Base):

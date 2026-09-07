@@ -3,12 +3,12 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from dotenv import load_dotenv
-load_dotenv('.env_93882a75-762a-45f3-a2b2-f23fdc62ca0d', override=True)
+load_dotenv('.env_5aed5591dc897f4e', override=True)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
-from app.routers import auth, games
+from app.routers import auth, games, scoreboards
 
 
 @asynccontextmanager
@@ -38,6 +38,7 @@ app.add_middleware(
 API_PREFIX = "/api/v1"
 app.include_router(auth.router, prefix=API_PREFIX)
 app.include_router(games.router, prefix=API_PREFIX)
+app.include_router(scoreboards.router, prefix=API_PREFIX)
 
 
 @app.get("/health", tags=["health"])

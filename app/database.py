@@ -3,12 +3,9 @@ import os
 from typing import AsyncGenerator
 
 from dotenv import load_dotenv
-load_dotenv('.env_93882a75-762a-45f3-a2b2-f23fdc62ca0d', override=True)
+load_dotenv('.env_5aed5591dc897f4e', override=True)
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
-
-DEFAULT_DATABASE_URL = "postgresql+asyncpg://myuser:mypassword@localhost:5432/gen_ff84970ff5"
-
 
 def _to_async_url(url: str) -> str:
     if url.startswith("postgresql+asyncpg://"):
@@ -18,7 +15,9 @@ def _to_async_url(url: str) -> str:
     return url
 
 
-DATABASE_URL = _to_async_url(os.getenv("DATABASE_URL", DEFAULT_DATABASE_URL))
+DATABASE_URL = _to_async_url(os.getenv("DATABASE_URL", ""))
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL must be set in .env_5aed5591dc897f4e")
 
 engine = create_async_engine(
     DATABASE_URL,
