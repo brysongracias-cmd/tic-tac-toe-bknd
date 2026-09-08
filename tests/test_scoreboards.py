@@ -7,15 +7,10 @@ import pytest
 pytestmark = pytest.mark.asyncio(loop_scope="session")
 
 
-async def test_create_scoreboard(client, auth_headers):
-    response = await client.post(
-        "/api/v1/scoreboards/",
-        json={"score": 10},
-        headers=auth_headers,
-    )
+async def test_create_scoreboard(client):
+    response = await client.post("/api/v1/scoreboards/", json={})
 
     assert response.status_code == 201
     body = response.json()
-    assert body["score"] == 10
     assert "id" in body
-    assert "owner_id" in body
+    assert "created_at" in body

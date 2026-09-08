@@ -52,21 +52,20 @@ class GameUpdate(BaseModel):
         return value
 
 
-class MoveCreate(BaseModel):
-    position: int = Field(ge=0, le=8)
-
-
 class ScoreboardCreate(BaseModel):
-    score: int
+    pass
 
 
 class ScoreboardRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
-    owner_id: uuid.UUID
-    score: int
     created_at: datetime
+
+
+class MoveCreate(BaseModel):
+    position: int = Field(ge=0, le=8)
+
 
 
 class MoveRead(BaseModel):

@@ -16,6 +16,8 @@ def _to_async_url(url: str) -> str:
 
 
 DATABASE_URL = _to_async_url(os.getenv("DATABASE_URL", ""))
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL must be set in .env_5aed5591dc897f4e")
 
 engine = create_async_engine(
     DATABASE_URL,

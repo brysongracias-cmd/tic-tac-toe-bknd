@@ -29,7 +29,7 @@ DATABASE_URL=postgresql+asyncpg://myuser:mypassword@localhost:5432/gen_ff84970ff
 SECRET_KEY=dev-secret-key-change-in-production
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
-PORT=46999
+PORT=20468
 ```
 
 The configured database is the verified fallback database `gen_ff84970ff5`.
@@ -38,20 +38,20 @@ The configured database is the verified fallback database `gen_ff84970ff5`.
 
 ```bash
 chmod +x ./start.sh
-PORT=46999 bash ./start.sh
+PORT=20468 bash ./start.sh
 ```
 
 Windows:
 
 ```bat
-set PORT=46999 && start /B .\start.bat
+set PORT=20468 && start /B .\start.bat
 ```
 
 API docs:
 
-- http://localhost:46999/docs
-- http://localhost:46999/redoc
-- http://localhost:46999/health
+- http://localhost:20468/docs
+- http://localhost:20468/redoc
+- http://localhost:20468/health
 
 ## Tests
 

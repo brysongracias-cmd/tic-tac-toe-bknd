@@ -4,7 +4,7 @@ install:
 	python3 -m pip install -r requirements.txt
 
 run:
-	chmod +x ./start.sh && PORT=46999 bash ./start.sh
+	chmod +x ./start.sh && PORT=20468 bash ./start.sh
 
 test:
 	pytest tests/ -v --tb=short

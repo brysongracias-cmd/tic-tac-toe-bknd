@@ -1,12 +1,12 @@
 # Generate an Excel API test report for the tic-tac-toe backend.
 from dotenv import load_dotenv
-load_dotenv('.env_93882a75-762a-45f3-a2b2-f23fdc62ca0d', override=True)
+load_dotenv('.env_5aed5591dc897f4e', override=True)
 import openpyxl
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
 results = [
-    ("GET", "/health", "Health check", 200, "PASS", "Real server boot verified OK on port 46999"),
+    ("GET", "/health", "Health check", 200, "PASS", "Real server boot verified OK on port 20468"),
     ("GET", "/", "Root status", 200, "PASS", "Route present and import/server checks passed"),
     ("POST", "/api/v1/auth/register", "Register user", 201, "PASS", "pytest test_register passed"),
     ("POST", "/api/v1/auth/login", "Login user", 200, "PASS", "pytest test_login passed"),

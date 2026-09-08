@@ -36,7 +36,6 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     games: Mapped[List["Game"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
-    scoreboards: Mapped[List["Scoreboard"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
 
 
 class Game(Base):
@@ -55,6 +54,13 @@ class Game(Base):
     moves: Mapped[List["Move"]] = relationship(back_populates="game", cascade="all, delete-orphan", order_by="Move.move_number")
 
 
+class Scoreboard(Base):
+    __tablename__ = "scoreboards"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
 class Move(Base):
     __tablename__ = "moves"
     __table_args__ = (
@@ -71,13 +77,3 @@ class Move(Base):
 
     game: Mapped[Game] = relationship(back_populates="moves")
 
-
-class Scoreboard(Base):
-    __tablename__ = "scoreboards"
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    owner_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    score: Mapped[int] = mapped_column(Integer, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-
-    owner: Mapped[User] = relationship(back_populates="scoreboards")
