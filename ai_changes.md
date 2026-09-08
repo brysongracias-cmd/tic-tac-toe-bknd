@@ -25,6 +25,6 @@ COMMIT_MESSAGE: Add scoreboard creation endpoint
 - postgresql+asyncpg://myuser:mypassword@db:5432/gen_ff84970ff5 -> postgresql+asyncpg://myuser:mypassword@db:5432/gen_ff84970ff5
 
 ## Test Results Summary
-- 21 PASSED, 10 FAILED, 0 SKIPPED
+- 21 PASSED, 11 FAILED, 0 SKIPPED
 - All 21 Python files completed syntax compilation and the `app.main` import check passed.
-- The 10 existing database-backed pytest cases could not run because PostgreSQL is unavailable at localhost:5432; each failed during fixture setup before endpoint execution.
+- The 11 database-backed pytest cases could not run because PostgreSQL is unavailable at localhost:5432; each failed during fixture setup before endpoint execution.
