@@ -1,11 +1,11 @@
-# SQLAlchemy ORM models for users, tic-tac-toe games, and moves.
+# SQLAlchemy ORM models for users, tic-tac-toe games, moves, and scoreboards.
 import enum
 import uuid
 from datetime import datetime
 from typing import List, Optional
 
 from dotenv import load_dotenv
-load_dotenv('.env_93882a75-762a-45f3-a2b2-f23fdc62ca0d', override=True)
+load_dotenv('.env_5aed5591dc897f4e', override=True)
 from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -36,6 +36,7 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     games: Mapped[List["Game"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
+    scoreboards: Mapped[List["Scoreboard"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
 
 
 class Game(Base):
@@ -69,3 +70,14 @@ class Move(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     game: Mapped[Game] = relationship(back_populates="moves")
+
+
+class Scoreboard(Base):
+    __tablename__ = "scoreboards"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    owner_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    score: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    owner: Mapped[User] = relationship(back_populates="scoreboards")

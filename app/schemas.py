@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Optional
 
 from dotenv import load_dotenv
-load_dotenv('.env_93882a75-762a-45f3-a2b2-f23fdc62ca0d', override=True)
+load_dotenv('.env_5aed5591dc897f4e', override=True)
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from app.models import GameStatus, PlayerMark
@@ -54,6 +54,19 @@ class GameUpdate(BaseModel):
 
 class MoveCreate(BaseModel):
     position: int = Field(ge=0, le=8)
+
+
+class ScoreboardCreate(BaseModel):
+    score: int
+
+
+class ScoreboardRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    owner_id: uuid.UUID
+    score: int
+    created_at: datetime
 
 
 class MoveRead(BaseModel):
