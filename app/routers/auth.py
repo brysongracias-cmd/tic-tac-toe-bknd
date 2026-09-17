@@ -1,6 +1,6 @@
 # Authentication API routes for registration, login, and current-user lookup.
 from dotenv import load_dotenv
-load_dotenv('.env_93882a75-762a-45f3-a2b2-f23fdc62ca0d', override=True)
+load_dotenv('.env_5aed5591dc897f4e', override=True)
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import or_, select

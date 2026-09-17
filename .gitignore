@@ -9,5 +9,12 @@ __pycache__/
 server.log
 pytest_output.txt
 project_report.docx
+api_test_report.xlsx
+test_results.md
+pr_url.txt
+generate_api_report.py
+generate_project_report.py
+start_69324697-b009-4308-a7da-aa421ebb886e.sh
+.env_5aed5591dc897f4e
 .env*
 !.env.example

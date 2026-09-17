@@ -3,7 +3,7 @@ import uuid
 from typing import Sequence
 
 from dotenv import load_dotenv
-load_dotenv('.env_93882a75-762a-45f3-a2b2-f23fdc62ca0d', override=True)
+load_dotenv('.env_5aed5591dc897f4e', override=True)
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,8 +11,8 @@ from sqlalchemy.orm import selectinload
 
 from app.core.auth import get_current_user
 from app.database import get_db
-from app.models import Game, GameStatus, Move, PlayerMark, User
-from app.schemas import GameCreate, GameRead, GameUpdate, MoveCreate
+from app.models import BotPlayer, Game, GameStatus, Move, PlayerMark, User
+from app.schemas import GameCreate, GameRead, GameUpdate, MoveCreate, SoloGameCreate
 
 router = APIRouter(prefix="/games", tags=["games"])
 
@@ -46,6 +46,23 @@ async def get_owned_game(game_id: uuid.UUID, current_user: User, db: AsyncSessio
 @router.post("/", response_model=GameRead, status_code=status.HTTP_201_CREATED)
 async def create_game(_: GameCreate, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)) -> Game:
     game = Game(owner_id=current_user.id)
+    db.add(game)
+    await db.commit()
+    result = await db.execute(select(Game).options(selectinload(Game.moves)).where(Game.id == game.id))
+    return result.scalar_one()
+
+
+@router.post("/solo", response_model=GameRead, status_code=status.HTTP_201_CREATED)
+async def create_solo_game(
+    payload: SoloGameCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Game:
+    bot_player = await db.get(BotPlayer, payload.bot_player_id)
+    if bot_player is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bot player not found")
+
+    game = Game(owner_id=current_user.id, bot_player_id=bot_player.id)
     db.add(game)
     await db.commit()
     result = await db.execute(select(Game).options(selectinload(Game.moves)).where(Game.id == game.id))
@@ -122,6 +139,22 @@ async def make_move(
         game.current_player = PlayerMark.O if player == PlayerMark.X else PlayerMark.X
     move = Move(game_id=game.id, player=player, position=payload.position, move_number=len(game.moves) + 1)
     game.moves.append(move)
+
+    if game.bot_player_id is not None and game.status == GameStatus.IN_PROGRESS:
+        bot_position = board.index("")
+        board[bot_position] = PlayerMark.O.value
+        game.board = board
+        game.status, game.winner = evaluate_board(board)
+        game.current_player = PlayerMark.X
+        game.moves.append(
+            Move(
+                game_id=game.id,
+                player=PlayerMark.O,
+                position=bot_position,
+                move_number=len(game.moves) + 1,
+            )
+        )
+
     await db.commit()
     result = await db.execute(
         select(Game).options(selectinload(Game.moves)).where(Game.id == game.id).execution_options(populate_existing=True)
