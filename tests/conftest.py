@@ -3,7 +3,7 @@ import os
 from urllib.parse import urlsplit, urlunsplit
 
 from dotenv import load_dotenv
-load_dotenv('.env_93882a75-762a-45f3-a2b2-f23fdc62ca0d', override=True)
+load_dotenv('.env_5aed5591dc897f4e', override=True)
 import asyncpg
 import pytest
 from httpx import ASGITransport, AsyncClient

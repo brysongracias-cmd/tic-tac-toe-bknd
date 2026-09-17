@@ -3,18 +3,28 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from dotenv import load_dotenv
-load_dotenv('.env_93882a75-762a-45f3-a2b2-f23fdc62ca0d', override=True)
+load_dotenv('.env_5aed5591dc897f4e', override=True)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 
 from app.database import Base, engine
-from app.routers import auth, games
+from app.routers import auth, bot_players, games
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await conn.execute(
+            text(
+                "ALTER TABLE games ADD COLUMN IF NOT EXISTS "
+                "bot_player_id UUID REFERENCES bot_players(id) ON DELETE RESTRICT"
+            )
+        )
+        await conn.execute(
+            text("CREATE INDEX IF NOT EXISTS ix_games_bot_player_id ON games (bot_player_id)")
+        )
     yield
 
 
@@ -37,6 +47,7 @@ app.add_middleware(
 
 API_PREFIX = "/api/v1"
 app.include_router(auth.router, prefix=API_PREFIX)
+app.include_router(bot_players.router, prefix=API_PREFIX)
 app.include_router(games.router, prefix=API_PREFIX)
 
 

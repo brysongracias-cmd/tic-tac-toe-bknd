@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from dotenv import load_dotenv
-load_dotenv('.env_93882a75-762a-45f3-a2b2-f23fdc62ca0d', override=True)
+load_dotenv('.env_5aed5591dc897f4e', override=True)
 from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -38,11 +38,24 @@ class User(Base):
     games: Mapped[List["Game"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
 
 
+class BotPlayer(Base):
+    __tablename__ = "bot_players"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    games: Mapped[List["Game"]] = relationship(back_populates="bot_player")
+
+
 class Game(Base):
     __tablename__ = "games"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     owner_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    bot_player_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("bot_players.id", ondelete="RESTRICT"), nullable=True, index=True
+    )
     board: Mapped[list[str]] = mapped_column(JSONB, default=lambda: ["", "", "", "", "", "", "", "", ""], nullable=False)
     current_player: Mapped[PlayerMark] = mapped_column(Enum(PlayerMark, name="player_mark"), default=PlayerMark.X, nullable=False)
     status: Mapped[GameStatus] = mapped_column(Enum(GameStatus, name="game_status"), default=GameStatus.IN_PROGRESS, nullable=False)
@@ -51,6 +64,7 @@ class Game(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     owner: Mapped[User] = relationship(back_populates="games")
+    bot_player: Mapped[Optional[BotPlayer]] = relationship(back_populates="games")
     moves: Mapped[List["Move"]] = relationship(back_populates="game", cascade="all, delete-orphan", order_by="Move.move_number")
 
 

@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Optional
 
 from dotenv import load_dotenv
-load_dotenv('.env_93882a75-762a-45f3-a2b2-f23fdc62ca0d', override=True)
+load_dotenv('.env_5aed5591dc897f4e', override=True)
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from app.models import GameStatus, PlayerMark
@@ -30,8 +30,24 @@ class UserRead(BaseModel):
     created_at: datetime
 
 
+class BotPlayerCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=64)
+
+
+class BotPlayerRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    name: str
+    created_at: datetime
+
+
 class GameCreate(BaseModel):
     pass
+
+
+class SoloGameCreate(BaseModel):
+    bot_player_id: uuid.UUID
 
 
 class GameUpdate(BaseModel):
@@ -72,6 +88,7 @@ class GameRead(BaseModel):
 
     id: uuid.UUID
     owner_id: uuid.UUID
+    bot_player_id: Optional[uuid.UUID]
     board: list[str]
     current_player: PlayerMark
     status: GameStatus
